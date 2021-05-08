@@ -4,6 +4,7 @@
 #include <FunctionalInterrupt.h>
 #include <Ticker.h>
 #include <DataLogger.h>
+#include <Speed.h>
 
 class Wheel
 {
@@ -13,10 +14,15 @@ class Wheel
     Reverse = -1,
   };
 
-  Ticker stateSpeedTicker = Ticker([this]() { resetSpeed(); }, WHEEL_SPEED_RESET_INTERVAL_MICROS, 0, MICROS_MICROS);
+  Ticker resetSpeedTicker = Ticker([this]() { resetSpeed(); }, WHEEL_SPEED_RESET_INTERVAL_MICROS, 0, MICROS_MICROS);
 
+  Speed speedAR;
+  Speed speedAF;
+  Speed speedBR;
+  Speed speedBF;
+  Speed *speed = &speedAR;
   int direction = Direction::Forward;
-  int directionReversal = 0; // 1 = no reversal, -1 = direction reversed
+  int directionReversal = 1; // 1 = no reversal, -1 = direction reversed
   int sensorA = LOW;
   int sensorB = LOW;
   DataLogger *logger;
@@ -27,10 +33,9 @@ class Wheel
 public:
   Wheel(DataLogger *logger, int wheelId, int pinA, int pinB) : logger(logger), wheelId(wheelId), pinA(pinA), pinB(pinB)
   {
-    logger->addVariable(wheelId, VariableLevel::Public, speed);
-    logger->addVariable(wheelId + 1, VariableLevel::Private, sensorA);
-    logger->addVariable(wheelId + 2, VariableLevel::Private, sensorB);
-    logger->addVariable(wheelId + 3, VariableLevel::Private, direction);
+    logger->addCalculatedDouble(wheelId, VariableLevel::Public, [this]() { return getSpeed(); });
+    // logger->addVariable(wheelId + 1, VariableLevel::Private, sensorA);
+    // logger->addVariable(wheelId + 2, VariableLevel::Private, sensorB);
   }
 
   void setup()
@@ -41,33 +46,32 @@ public:
         pinA, [this]() { onChange(); }, CHANGE);
     attachInterrupt(
         pinB, [this]() { onChange(); }, CHANGE);
-    resetState();
-    // stateSpeedTicker.start();
+    resetSpeedTicker.start();
+  }
+
+  double getSpeed()
+  {
+    return speed->getSpeed() * (double)(direction * directionReversal);
   }
 
   void loop()
   {
-    // stateSpeedTicker.update();
+    resetSpeedTicker.update();
   }
 
   void resetSpeed()
   {
-    // if (sensorA == LOW && sensorB == LOW)
-    // {
-    //   state = State::Base;
-    // }
-    // else
-    // {
-    //   state = State::Unknown;
-    // }
-
-    // direction = Direction::Forward;
+    speedAR.reset();
+    speedAF.reset();
+    speedBR.reset();
+    speedBF.reset();
   }
 
 private:
-  //void IRAM_ATTR onChange()
-  void onChange()
+  void IRAM_ATTR onChange()
+  // void onChange()
   {
+    resetSpeedTicker.start();
     int previousSensorA = sensorA;
     int previousSensorB = sensorA;
     sensorA = digitalRead(pinA);
@@ -79,6 +83,8 @@ private:
         previousSensorA == HIGH && previousSensorB == HIGH && sensorA == LOW && sensorB == HIGH ||
         previousSensorA == LOW && previousSensorB == HIGH && sensorA == LOW && sensorB == LOW)
     {
+      if (direction == Direction::Reverse)
+        resetSpeed();
       direction = Direction::Forward;
     }
     else if (
@@ -87,8 +93,29 @@ private:
         previousSensorA == HIGH && previousSensorB == HIGH && sensorA == HIGH && sensorB == LOW ||
         previousSensorA == HIGH && previousSensorB == LOW && sensorA == LOW && sensorB == LOW)
     {
+      if (direction == Direction::Forward)
+        resetSpeed();
       direction = Direction::Reverse;
     }
+
+    if (previousSensorA == LOW && sensorA == HIGH)
+    {
+      speed = &speedAR;
+      speed->registerEvent();
+    }
+    // else if (previousSensorA == HIGH && sensorA == LOW)
+    // {
+    //   speed = &speedAF;
+    // }
+    else if (previousSensorB == LOW && sensorB == HIGH)
+    {
+      speed = &speedBR;
+      speed->registerEvent();
+    }
+    // else if (previousSensorB == HIGH && sensorB == LOW)
+    // {
+    //   speed = &speedBF;
+    // }
   }
 };
 

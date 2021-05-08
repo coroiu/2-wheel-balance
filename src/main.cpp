@@ -36,7 +36,7 @@ void loop()
 
 void log()
 {
-  // dataLogger.log();
+  dataLogger.log();
 }
 
 void timedLoop()
