@@ -6,9 +6,11 @@
 #include "Wheel.h"
 
 void log();
+void timedLoop();
 void control();
 
 Ticker logTicker([]() { log(); }, INTERVAL_LOG_MICROS, 0, MICROS_MICROS);
+Ticker loopTicker([]() { timedLoop(); }, INTERVAL_CONTROL_MICROS, 0, MICROS_MICROS);
 Ticker controlTicker([]() { control(); }, INTERVAL_CONTROL_MICROS, 0, MICROS_MICROS);
 
 DataLogger dataLogger;
@@ -21,20 +23,28 @@ void setup()
   leftWheel.setup();
 
   logTicker.start();
+  loopTicker.start();
   controlTicker.start();
 }
 
 void loop()
 {
   logTicker.update();
+  loopTicker.update();
   controlTicker.update();
 }
 
 void log()
 {
-  dataLogger.log();
+  // dataLogger.log();
+}
+
+void timedLoop()
+{
+  leftWheel.loop();
 }
 
 void control()
 {
+  // leftWheel.control();
 }
