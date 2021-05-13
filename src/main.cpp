@@ -4,6 +4,8 @@
 #include <Ticker.h>
 #include "Constants.h"
 #include "Wheel.h"
+#include "Motor.h"
+#include "GlobalTicker.h"
 
 void log();
 void timedLoop();
@@ -15,6 +17,7 @@ Ticker controlTicker([]() { control(); }, INTERVAL_CONTROL_MICROS, 0, MICROS_MIC
 
 DataLogger dataLogger;
 Wheel leftWheel(&dataLogger, WHEEL_LEFT, WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B);
+Motor leftMotor(&dataLogger, MOTOR_LEFT, MOTOR_LEFT_1, MOTOR_LEFT_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL);
 
 void setup()
 {
@@ -25,6 +28,8 @@ void setup()
   logTicker.start();
   loopTicker.start();
   controlTicker.start();
+
+  // leftMotor.test();
 }
 
 void loop()
@@ -32,11 +37,12 @@ void loop()
   logTicker.update();
   loopTicker.update();
   controlTicker.update();
+  GlobalTicker::updateAll();
 }
 
 void log()
 {
-  dataLogger.log();
+  // dataLogger.log();
 }
 
 void timedLoop()
