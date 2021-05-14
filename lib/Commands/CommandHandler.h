@@ -46,9 +46,10 @@ public:
   {
     if (serial->available())
     {
-      int read = serial->readBytesUntil(COMMAND_DELIMITER, buffer, BUFFER_SIZE);
+      int read = serial->readBytesUntil(COMMAND_DELIMITER, buffer, BUFFER_SIZE - 1);
       if (read == 0)
         return;
+      buffer[read] = '\0';
 
       int argc = parseArgs();
       if (argc == 0)
