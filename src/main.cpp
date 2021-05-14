@@ -32,8 +32,16 @@ void setup()
   loopTicker.start();
   controlTicker.start();
 
-  commandHandler.command("test-motor", [](CommandHandler *handler) {
+  commandHandler.command("test-motors", [](CommandHandler *handler) {
     leftMotor.test();
+  });
+
+  commandHandler.command("set-motors", [](CommandHandler *handler) {
+    Serial.printf("args recieved: %d\n", handler->argc);
+    if (handler->argc < 2)
+      return;
+    int power = atoi(handler->argv[1]);
+    leftMotor.setPower((double)power / 100.0);
   });
 
   Serial.println("Setup finished");
