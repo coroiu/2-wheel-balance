@@ -19,22 +19,21 @@ Ticker controlTicker([]() { control(); }, INTERVAL_CONTROL_MICROS, 0, MICROS_MIC
 CommandHandler commandHandler(&Serial);
 DataLogger dataLogger;
 Wheel leftWheel(&dataLogger, WHEEL_LEFT, WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B);
-Motor leftMotor(&dataLogger, MOTOR_LEFT, MOTOR_LEFT_1, MOTOR_LEFT_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL);
+Motor leftMotor(&dataLogger, MOTOR_LEFT, MOTOR_LEFT_IN_1, MOTOR_LEFT_IN_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL);
 
 void setup()
 {
   Serial.begin(115200);
 
   leftWheel.setup();
+  leftMotor.setup();
 
   logTicker.start();
   loopTicker.start();
   controlTicker.start();
 
-  // leftMotor.test();
-
-  commandHandler.command("test", [](CommandHandler *handler) {
-    handler->serial->println("Test ran");
+  commandHandler.command("test-motor", [](CommandHandler *handler) {
+    leftMotor.test();
   });
 
   Serial.println("Setup finished");

@@ -25,22 +25,36 @@ public:
     testSequence.addInstruction(1000, [this]() {
       Serial.println("Pins - A: High - B: Low");
       digitalWrite(this->pinA, HIGH);
-      digitalWrite(this->pinB, HIGH);
+      digitalWrite(this->pinB, LOW);
     });
-    testSequence.addInstruction(1000, []() {
+    testSequence.addInstruction(1000, [this]() {
       Serial.println("1% power.");
+      setPower(.01);
     });
-    testSequence.addInstruction(1000, []() {
+    testSequence.addInstruction(1000, [this]() {
       Serial.println("2% power.");
+      setPower(.02);
     });
-    testSequence.addInstruction(1000, []() {
+    testSequence.addInstruction(1000, [this]() {
       Serial.println("3% power.");
+      setPower(.03);
     });
-    testSequence.addInstruction(1000, []() {
+    testSequence.addInstruction(1000, [this]() {
       Serial.println("5% power.");
+      setPower(.05);
     });
-    testSequence.addInstruction(1000, []() {
+    testSequence.addInstruction(1000, [this]() {
       Serial.println("10% power.");
+      setPower(.1);
+    });
+    testSequence.addInstruction(1000, [this]() {
+      Serial.println("0% power.");
+      setPower(.0);
+    });
+    testSequence.addInstruction(1000, [this]() {
+      Serial.println("Pins - A: LOW - B: Low");
+      digitalWrite(this->pinA, LOW);
+      digitalWrite(this->pinB, LOW);
     });
     testSequence.addInstruction(0, []() {
       Serial.println("Sequence finished.");
@@ -49,11 +63,15 @@ public:
 
   void setup()
   {
-    logger->addVariable(loggerOffset, VariableLevel::Public, power);
+    Serial.printf("Setting up motor %d-%d-%d\n", pinA, pinB, pwmPin);
+    // logger->addVariable(loggerOffset, VariableLevel::Public, power);
     pinMode(pinA, OUTPUT);
     pinMode(pinB, OUTPUT);
+    digitalWrite(this->pinA, LOW);
+    digitalWrite(this->pinB, LOW);
     ledcAttachPin(pwmPin, pwmChannel);
-    ledcSetup(pwmChannel, 10000, 16);
+    double resFreq = ledcSetup(pwmChannel, 20000, 16);
+    Serial.printf("Done. Using pwm freq: %.4f\n", resFreq);
   }
 
   void test()
@@ -68,7 +86,7 @@ public:
     else if (_power > 100.0)
       _power = 100.0;
 
-    ledcWrite(0, 65535 * _power);
+    ledcWrite(pwmChannel, 65535 * _power);
     power = _power;
   }
 };
