@@ -18,7 +18,7 @@ class Motor
   int pwmChannel;
 
 public:
-  Motor(DataLogger *dataLogger, int loggerOffset, int pinA, int pinB, int pwmPin, int pwmChannel) : logger(), loggerOffset(loggerOffset), pinA(pinA), pinB(pinB), pwmPin(pwmPin), pwmChannel(pwmChannel)
+  Motor(DataLogger *dataLogger, int loggerOffset, int pinA, int pinB, int pwmPin, int pwmChannel) : logger(dataLogger), loggerOffset(loggerOffset), pinA(pinA), pinB(pinB), pwmPin(pwmPin), pwmChannel(pwmChannel)
   {
     testSequence.addInstruction(0, []() {
       Serial.println("Test sequence started.");
@@ -67,7 +67,7 @@ public:
   void setup()
   {
     Serial.printf("Setting up motor %d-%d-%d\n", pinA, pinB, pwmPin);
-    // logger->addVariable(loggerOffset, VariableLevel::Public, power);
+    logger->addVariable(loggerOffset, VariableLevel::Public, power);
     pinMode(pinA, OUTPUT);
     pinMode(pinB, OUTPUT);
     digitalWrite(pinA, LOW);

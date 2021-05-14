@@ -37,7 +37,6 @@ void setup()
   });
 
   commandHandler.command("set-motors", [](CommandHandler *handler) {
-    Serial.printf("args recieved: %d\n", handler->argc);
     if (handler->argc < 2)
       return;
     int power = atoi(handler->argv[1]);

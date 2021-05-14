@@ -51,7 +51,7 @@ public:
         return;
       buffer[read] = '\0';
 
-      int argc = parseArgs();
+      argc = parseArgs();
       if (argc == 0)
         return;
 

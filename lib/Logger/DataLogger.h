@@ -45,6 +45,7 @@ public:
 
   void addVariable(int tag, VariableLevel level, double &variable)
   {
+    Serial.printf("Trying to add variable: %d %d\n", tag, level);
     variables[tag] = VariableInfo{
         .type = VariableType::Double,
         .level = level,
