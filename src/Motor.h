@@ -3,6 +3,7 @@
 
 #include <DataLogger.h>
 #include "Sequence.h"
+#include "utils.h"
 
 class Motor
 {
@@ -23,23 +24,6 @@ public:
       Serial.println("Test sequence started.");
     });
     testSequence.addInstruction(1000, [this]() {
-      Serial.println("Pins - A: High - B: Low");
-      digitalWrite(this->pinA, HIGH);
-      digitalWrite(this->pinB, LOW);
-    });
-    testSequence.addInstruction(1000, [this]() {
-      Serial.println("1% power.");
-      setPower(.01);
-    });
-    testSequence.addInstruction(1000, [this]() {
-      Serial.println("2% power.");
-      setPower(.02);
-    });
-    testSequence.addInstruction(1000, [this]() {
-      Serial.println("3% power.");
-      setPower(.03);
-    });
-    testSequence.addInstruction(1000, [this]() {
       Serial.println("5% power.");
       setPower(.05);
     });
@@ -48,13 +32,32 @@ public:
       setPower(.1);
     });
     testSequence.addInstruction(1000, [this]() {
+      Serial.println("20% power.");
+      setPower(.2);
+    });
+    testSequence.addInstruction(1000, [this]() {
+      Serial.println("50% power.");
+      setPower(.5);
+    });
+    testSequence.addInstruction(1000, [this]() {
       Serial.println("0% power.");
       setPower(.0);
     });
+    testSequence.addInstruction(5000, [this]() {
+      Serial.println("-10% power.");
+      setPower(-.1);
+    });
     testSequence.addInstruction(1000, [this]() {
-      Serial.println("Pins - A: LOW - B: Low");
-      digitalWrite(this->pinA, LOW);
-      digitalWrite(this->pinB, LOW);
+      Serial.println("-20% power.");
+      setPower(-.2);
+    });
+    testSequence.addInstruction(1000, [this]() {
+      Serial.println("-50% power.");
+      setPower(-.5);
+    });
+    testSequence.addInstruction(1000, [this]() {
+      Serial.println("0% power.");
+      setPower(.0);
     });
     testSequence.addInstruction(0, []() {
       Serial.println("Sequence finished.");
@@ -67,10 +70,10 @@ public:
     // logger->addVariable(loggerOffset, VariableLevel::Public, power);
     pinMode(pinA, OUTPUT);
     pinMode(pinB, OUTPUT);
-    digitalWrite(this->pinA, LOW);
-    digitalWrite(this->pinB, LOW);
+    digitalWrite(pinA, LOW);
+    digitalWrite(pinB, LOW);
     ledcAttachPin(pwmPin, pwmChannel);
-    double resFreq = ledcSetup(pwmChannel, 20000, 16);
+    double resFreq = ledcSetup(pwmChannel, MOTOR_PWM_FREQ, MOTOR_PWM_RESOLUTION_BITS);
     Serial.printf("Done. Using pwm freq: %.4f\n", resFreq);
   }
 
@@ -81,12 +84,30 @@ public:
 
   void setPower(double _power)
   {
-    if (_power < .0)
-      _power = .0;
-    else if (_power > 100.0)
-      _power = 100.0;
+    if (_power < -1.0)
+      _power = -1.0;
+    else if (_power > 1.0)
+      _power = 1.0;
 
-    ledcWrite(pwmChannel, 65535 * _power);
+    if (almost_equal(_power, .0, MOTOR_POWER_RESOLUTION_DECIMALS))
+    {
+      digitalWrite(pinA, LOW);
+      digitalWrite(pinB, LOW);
+      ledcWrite(pwmChannel, 0);
+    }
+    else if (_power < .0)
+    {
+      digitalWrite(pinA, LOW);
+      digitalWrite(pinB, HIGH);
+      ledcWrite(pwmChannel, -65535 * _power);
+    }
+    else if (_power > .0)
+    {
+      digitalWrite(pinA, HIGH);
+      digitalWrite(pinB, LOW);
+      ledcWrite(pwmChannel, 65535 * _power);
+    }
+
     power = _power;
   }
 };
