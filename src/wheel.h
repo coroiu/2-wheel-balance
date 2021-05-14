@@ -1,6 +1,8 @@
 #ifndef _WHEEL_H
 #define _WHEEL_H
 
+#define TOLERATED_DEVIANCE 0.1 // 10%
+
 #include <FunctionalInterrupt.h>
 #include <Ticker.h>
 #include <DataLogger.h>
@@ -22,7 +24,7 @@ class Wheel
   Speed speedBF;
   Speed *speed = &speedAR;
   int direction = Direction::Forward;
-  int directionReversal = 1; // 1 = no reversal, -1 = direction reversed
+  int directionReversal = -1; // 1 = no reversal, -1 = direction reversed
   int sensorA = LOW;
   int sensorB = LOW;
   DataLogger *logger;
@@ -34,6 +36,8 @@ public:
   Wheel(DataLogger *logger, int wheelId, int pinA, int pinB) : logger(logger), wheelId(wheelId), pinA(pinA), pinB(pinB)
   {
     logger->addCalculatedDouble(wheelId, VariableLevel::Public, [this]() { return getSpeed(); });
+    // logger->addCalculatedDouble(wheelId + 1, VariableLevel::Private, [this]() { return speedAR.getSpeed(); });
+    // logger->addCalculatedDouble(wheelId + 2, VariableLevel::Private, [this]() { return speedBR.getSpeed(); });
     // logger->addVariable(wheelId + 1, VariableLevel::Private, sensorA);
     // logger->addVariable(wheelId + 2, VariableLevel::Private, sensorB);
   }
@@ -42,16 +46,46 @@ public:
   {
     pinMode(pinA, INPUT);
     pinMode(pinB, INPUT);
+
+    // attachInterrupt(
+    //     pinA, [this]() { onChange(); }, CHANGE);
+    // attachInterrupt(
+    //     pinB, [this]() { onChange(); }, CHANGE);
+
     attachInterrupt(
-        pinA, [this]() { onChange(); }, CHANGE);
+        pinA, [this]() { speedAR.registerEvent(); onChange(); }, RISING);
+    // attachInterrupt(
+    //     pinA, [this]() { speedAF.registerEvent(); onChange(); }, FALLING);
     attachInterrupt(
-        pinB, [this]() { onChange(); }, CHANGE);
+        pinB, [this]() { speedBR.registerEvent(); onChange(); }, RISING);
+    // attachInterrupt(
+    //     pinB, [this]() { speedBF.registerEvent(); onChange(); }, FALLING);
+
     resetSpeedTicker.start();
   }
 
   double getSpeed()
   {
-    return speed->getSpeed() * (double)(direction * directionReversal);
+    double ar = speedAR.getSpeed();
+    double br = speedBR.getSpeed();
+    double difference = std::abs(ar - br);
+    double mean = (ar + br) / 2.0;
+    double deviance = difference / mean;
+    double toReturn;
+
+    if (deviance > TOLERATED_DEVIANCE)
+    {
+      if (std::abs(ar) < std::abs(br))
+        toReturn = ar;
+      else
+        toReturn = br;
+    }
+    else
+    {
+      toReturn = mean;
+    }
+
+    return toReturn * (double)(direction * directionReversal);
   }
 
   void loop()
@@ -98,20 +132,20 @@ private:
       direction = Direction::Reverse;
     }
 
-    if (previousSensorA == LOW && sensorA == HIGH)
-    {
-      speed = &speedAR;
-      speed->registerEvent();
-    }
+    // if (previousSensorA == LOW && sensorA == HIGH)
+    // {
+    //   speed = &speedAR;
+    //   speed->registerEvent();
+    // }
     // else if (previousSensorA == HIGH && sensorA == LOW)
     // {
     //   speed = &speedAF;
     // }
-    else if (previousSensorB == LOW && sensorB == HIGH)
-    {
-      speed = &speedBR;
-      speed->registerEvent();
-    }
+    // else if (previousSensorB == LOW && sensorB == HIGH)
+    // {
+    //   speed = &speedBR;
+    //   speed->registerEvent();
+    // }
     // else if (previousSensorB == HIGH && sensorB == LOW)
     // {
     //   speed = &speedBF;
