@@ -1,7 +1,9 @@
 #ifndef _EXP_ROLLING_SUM_FILTER_H
 #define _EXP_ROLLING_SUM_FILTER_H
 
-class ExpRollingSumFilter
+#include "Filter.h"
+
+class ExpRollingSumFilter : public Filter
 {
   double strength = .0;
   double lastOutput = .0;
@@ -21,7 +23,7 @@ public:
     return lastOutput;
   }
 
-  double getOutput(double input)
+  double getOutput(double input) override
   {
     if (hasOutput)
       return lastOutput = lastOutput * strength + input * (1 - strength);
