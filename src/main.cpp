@@ -7,7 +7,7 @@
 #include "Wheel.h"
 #include "Motor.h"
 #include "WheelSpeedController.h"
-// #include "WheelAccelSpeedController.h"
+#include "InertialMeasurementUnit.h"
 #include "GlobalTicker.h"
 
 void log();
@@ -20,6 +20,7 @@ Ticker controlTicker([]() { control(); }, INTERVAL_CONTROL_MICROS, 0, MICROS_MIC
 
 CommandHandler commandHandler(&Serial);
 SerialDataLogger dataLogger;
+
 Wheel leftWheel(dataLogger.createLogger(1000), WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B, true);
 Motor leftMotor(dataLogger.createLogger(1100), MOTOR_LEFT_IN_1, MOTOR_LEFT_IN_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL);
 WheelSpeedController leftController(dataLogger.createLogger(1200), &leftWheel, &leftMotor);
@@ -27,6 +28,8 @@ WheelSpeedController leftController(dataLogger.createLogger(1200), &leftWheel, &
 Wheel rightWheel(dataLogger.createLogger(2000), WHEEL_RIGHT_PIN_A, WHEEL_RIGHT_PIN_B, false);
 Motor rightMotor(dataLogger.createLogger(2100), MOTOR_RIGHT_IN_1, MOTOR_RIGHT_IN_2, MOTOR_RIGHT_PWM_PIN, MOTOR_RIGHT_PWM_CHANNEL);
 WheelSpeedController rightController(dataLogger.createLogger(2200), &leftWheel, &rightMotor);
+
+InertialMeasurementUnit imu(dataLogger.createLogger(3000));
 
 void setup()
 {
@@ -37,6 +40,8 @@ void setup()
 
   leftWheel.setup();
   leftMotor.setup();
+
+  imu.setup();
 
   logTicker.start();
   loopTicker.start();
@@ -97,6 +102,7 @@ void timedLoop()
 {
   leftWheel.loop();
   rightWheel.loop();
+  imu.loop();
 }
 
 void control()
