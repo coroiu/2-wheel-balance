@@ -26,6 +26,7 @@ WheelSpeedController leftController(dataLogger.createLogger(1200), &leftWheel, &
 // WheelAccelSpeedController leftController(&dataLogger, &leftWheel, &leftMotor);
 
 Wheel rightWheel(dataLogger.createLogger(2000), WHEEL_RIGHT_PIN_A, WHEEL_RIGHT_PIN_B, false);
+Motor rightMotor(dataLogger.createLogger(2100), MOTOR_RIGHT_IN_1, MOTOR_RIGHT_IN_2, MOTOR_RIGHT_PWM_PIN, MOTOR_RIGHT_PWM_CHANNEL);
 
 void setup()
 {
@@ -35,6 +36,7 @@ void setup()
   leftMotor.setup();
 
   rightWheel.setup();
+  rightMotor.setup();
 
   logTicker.start();
   loopTicker.start();
@@ -42,6 +44,7 @@ void setup()
 
   commandHandler.command("test-motors", [](CommandHandler *handler) {
     leftMotor.test();
+    rightMotor.test();
   });
 
   commandHandler.command("set-motors", [](CommandHandler *handler) {
@@ -49,6 +52,7 @@ void setup()
       return;
     int power = atoi(handler->argv[1]);
     leftMotor.setPower((double)power / 100.0);
+    rightMotor.setPower((double)power / 100.0);
   });
 
   commandHandler.command("enable-wheel-speed", [](CommandHandler *handler) {
