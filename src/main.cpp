@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <FunctionalInterrupt.h>
-#include <DataLogger.h>
+#include <SerialDataLogger.h>
 #include <Ticker.h>
 #include <CommandHandler.h>
 #include "Constants.h"
@@ -19,10 +19,10 @@ Ticker loopTicker([]() { timedLoop(); }, INTERVAL_LOOP_MICROS, 0, MICROS_MICROS)
 Ticker controlTicker([]() { control(); }, INTERVAL_CONTROL_MICROS, 0, MICROS_MICROS);
 
 CommandHandler commandHandler(&Serial);
-DataLogger dataLogger;
-Wheel leftWheel(&dataLogger, WHEEL_LEFT, WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B);
-Motor leftMotor(&dataLogger, MOTOR_LEFT, MOTOR_LEFT_IN_1, MOTOR_LEFT_IN_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL);
-WheelSpeedController leftController(&dataLogger, &leftWheel, &leftMotor);
+SerialDataLogger dataLogger;
+Wheel leftWheel(dataLogger.createLogger(100), WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B);
+Motor leftMotor(dataLogger.createLogger(200), MOTOR_LEFT_IN_1, MOTOR_LEFT_IN_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL);
+WheelSpeedController leftController(dataLogger.createLogger(300), &leftWheel, &leftMotor);
 // WheelAccelSpeedController leftController(&dataLogger, &leftWheel, &leftMotor);
 
 void setup()

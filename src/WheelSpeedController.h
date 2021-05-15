@@ -34,7 +34,7 @@ public:
     controller.setOutputFilter(.1);
     controller.setOutputRampRate(.2);
     controller.setSetpointRange(10);
-    dataLogger->addVariable(500, VariableLevel::Public, output);
+    dataLogger->addVariable(0, VariableLevel::Public, output);
   }
 
   void enable()

@@ -31,14 +31,13 @@ class Wheel
   int sensorB = LOW;
 
   DataLogger *logger;
-  int wheelId;
   int pinA;
   int pinB;
 
 public:
-  Wheel(DataLogger *logger, int wheelId, int pinA, int pinB) : logger(logger), wheelId(wheelId), pinA(pinA), pinB(pinB)
+  Wheel(DataLogger *logger, int pinA, int pinB) : logger(logger), pinA(pinA), pinB(pinB)
   {
-    logger->addCalculatedDouble(wheelId, VariableLevel::Public, [this]() { return getSpeed(); });
+    logger->addCalculatedDouble(0, VariableLevel::Public, [this]() { return getSpeed(); });
     // logger->addCalculatedDouble(wheelId + 1, VariableLevel::Private, [this]() { return speedAR.getSpeed(); });
     // logger->addCalculatedDouble(wheelId + 2, VariableLevel::Private, [this]() { return speedBR.getSpeed(); });
     // logger->addVariable(wheelId + 1, VariableLevel::Private, sensorA);
