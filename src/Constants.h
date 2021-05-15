@@ -28,7 +28,7 @@
 
 #define MOTOR_RIGHT_IN_1 32
 #define MOTOR_RIGHT_IN_2 15
-#define MOTOR_RIGHT_PWM_PIN 14
+#define MOTOR_RIGHT_PWM_PIN 13
 #define MOTOR_RIGHT_PWM_CHANNEL 1
 
 #endif

@@ -18,11 +18,6 @@ public:
       strength = 1.0;
   }
 
-  double getOutput()
-  {
-    return lastOutput;
-  }
-
   double getOutput(double input) override
   {
     if (hasOutput)

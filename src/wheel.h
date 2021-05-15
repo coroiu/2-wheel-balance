@@ -4,6 +4,8 @@
 #define TOLERATED_DEVIANCE 0.1 // 10%
 
 #include <FilterChain.h>
+#include <ChangeDiscardFilter.h>
+#include <ChangeLimitFilter.h>
 #include <ExpRollingSumFilter.h>
 #include <FunctionalInterrupt.h>
 #include <Ticker.h>
@@ -25,8 +27,11 @@ class Wheel
   Speed speedBR;
   Speed speedBF;
   Speed *speed = &speedAR;
-  FilterChain speedFilter = FilterChain({new ExpRollingSumFilter(0.5)});
-  // ExpRollingSumFilter speedFilter = ExpRollingSumFilter(0.5);
+  FilterChain speedFilter = FilterChain({
+      new ChangeDiscardFilter(1000.0),
+      new ChangeLimitFilter(50.0),
+      new ExpRollingSumFilter(0.5),
+  });
   int direction = Direction::Forward;
   int directionReversal = 1; // 1 = no reversal, -1 = direction reversed
   int sensorA = LOW;

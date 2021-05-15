@@ -23,20 +23,20 @@ SerialDataLogger dataLogger;
 Wheel leftWheel(dataLogger.createLogger(1000), WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B, true);
 Motor leftMotor(dataLogger.createLogger(1100), MOTOR_LEFT_IN_1, MOTOR_LEFT_IN_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL);
 WheelSpeedController leftController(dataLogger.createLogger(1200), &leftWheel, &leftMotor);
-// WheelAccelSpeedController leftController(&dataLogger, &leftWheel, &leftMotor);
 
 Wheel rightWheel(dataLogger.createLogger(2000), WHEEL_RIGHT_PIN_A, WHEEL_RIGHT_PIN_B, false);
 Motor rightMotor(dataLogger.createLogger(2100), MOTOR_RIGHT_IN_1, MOTOR_RIGHT_IN_2, MOTOR_RIGHT_PWM_PIN, MOTOR_RIGHT_PWM_CHANNEL);
+WheelSpeedController rightController(dataLogger.createLogger(2200), &leftWheel, &rightMotor);
 
 void setup()
 {
   Serial.begin(115200);
 
-  leftWheel.setup();
-  leftMotor.setup();
-
   rightWheel.setup();
   rightMotor.setup();
+
+  leftWheel.setup();
+  leftMotor.setup();
 
   logTicker.start();
   loopTicker.start();
@@ -57,10 +57,12 @@ void setup()
 
   commandHandler.command("enable-wheel-speed", [](CommandHandler *handler) {
     leftController.enable();
+    rightController.enable();
   });
 
   commandHandler.command("disable-wheel-speed", [](CommandHandler *handler) {
     leftController.disable();
+    rightController.disable();
   });
 
   commandHandler.command("set-wheel-speed", [](CommandHandler *handler) {
@@ -68,7 +70,9 @@ void setup()
       return;
     int speed = atoi(handler->argv[1]);
     leftController.setSpeed(speed);
+    rightController.setSpeed(speed);
     leftController.enable();
+    rightController.enable();
   });
 
   Serial.println("Setup finished");
@@ -97,6 +101,6 @@ void timedLoop()
 
 void control()
 {
-  // leftWheel.control();
   leftController.control();
+  rightController.control();
 }
