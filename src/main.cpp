@@ -20,10 +20,12 @@ Ticker controlTicker([]() { control(); }, INTERVAL_CONTROL_MICROS, 0, MICROS_MIC
 
 CommandHandler commandHandler(&Serial);
 SerialDataLogger dataLogger;
-Wheel leftWheel(dataLogger.createLogger(100), WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B);
-Motor leftMotor(dataLogger.createLogger(200), MOTOR_LEFT_IN_1, MOTOR_LEFT_IN_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL);
-WheelSpeedController leftController(dataLogger.createLogger(300), &leftWheel, &leftMotor);
+Wheel leftWheel(dataLogger.createLogger(1000), WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B, true);
+Motor leftMotor(dataLogger.createLogger(1100), MOTOR_LEFT_IN_1, MOTOR_LEFT_IN_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL);
+WheelSpeedController leftController(dataLogger.createLogger(1200), &leftWheel, &leftMotor);
 // WheelAccelSpeedController leftController(&dataLogger, &leftWheel, &leftMotor);
+
+Wheel rightWheel(dataLogger.createLogger(2000), WHEEL_RIGHT_PIN_A, WHEEL_RIGHT_PIN_B, false);
 
 void setup()
 {
@@ -31,6 +33,8 @@ void setup()
 
   leftWheel.setup();
   leftMotor.setup();
+
+  rightWheel.setup();
 
   logTicker.start();
   loopTicker.start();
@@ -84,6 +88,7 @@ void log()
 void timedLoop()
 {
   leftWheel.loop();
+  rightWheel.loop();
 }
 
 void control()

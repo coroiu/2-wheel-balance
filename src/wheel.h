@@ -26,7 +26,7 @@ class Wheel
   Speed *speed = &speedAR;
   ExpRollingSumFilter speedFilter = ExpRollingSumFilter(0.5);
   int direction = Direction::Forward;
-  int directionReversal = -1; // 1 = no reversal, -1 = direction reversed
+  int directionReversal = 1; // 1 = no reversal, -1 = direction reversed
   int sensorA = LOW;
   int sensorB = LOW;
 
@@ -35,7 +35,7 @@ class Wheel
   int pinB;
 
 public:
-  Wheel(DataLogger *logger, int pinA, int pinB) : logger(logger), pinA(pinA), pinB(pinB)
+  Wheel(DataLogger *logger, int pinA, int pinB, bool reversed) : logger(logger), pinA(pinA), pinB(pinB), directionReversal(reversed ? -1 : 1)
   {
     logger->addCalculatedDouble(0, VariableLevel::Public, [this]() { return getSpeed(); });
     // logger->addCalculatedDouble(wheelId + 1, VariableLevel::Private, [this]() { return speedAR.getSpeed(); });
