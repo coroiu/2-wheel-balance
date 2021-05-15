@@ -5,30 +5,47 @@
 #include <Adafruit_LSM9DS1.h>
 #include <Adafruit_Sensor.h>
 #include <DataLogger.h>
+#include <AttitudeEstimator.h>
+#include "Timer.h"
+
+#define M_PI 3.1415926535897932384626433832795
+
+using namespace stateestimation;
 
 class InertialMeasurementUnit
 {
   Adafruit_LSM9DS1 lsm;
+  AttitudeEstimator est;
+  Timer timer;
 
   sensors_event_t a, m, g, temp;
   double accX, accY, accZ;
   double magX, magY, magZ;
   double gyrX, gyrY, gyrZ;
 
+  double yaw, pitch, roll;
+
 public:
   InertialMeasurementUnit(DataLogger *logger)
   {
-    logger->addVariable(0, VariableLevel::Private, accX);
-    logger->addVariable(1, VariableLevel::Private, accY);
-    logger->addVariable(2, VariableLevel::Private, accZ);
+    // Est.setPIGains(2.2, 2.65, 10, 1.25);
+    est.setPIGains(0.5, 2.65, 5, 1.25);
 
-    logger->addVariable(3, VariableLevel::Private, magX);
-    logger->addVariable(4, VariableLevel::Private, magX);
-    logger->addVariable(5, VariableLevel::Private, magX);
+    logger->addVariable(0, VariableLevel::Public, yaw);
+    logger->addVariable(1, VariableLevel::Public, pitch);
+    logger->addVariable(2, VariableLevel::Public, roll);
 
-    logger->addVariable(6, VariableLevel::Private, gyrX);
-    logger->addVariable(7, VariableLevel::Private, gyrX);
-    logger->addVariable(8, VariableLevel::Private, gyrX);
+    // logger->addVariable(3, VariableLevel::Private, accX);
+    // logger->addVariable(4, VariableLevel::Private, accY);
+    // logger->addVariable(5, VariableLevel::Private, accZ);
+
+    // logger->addVariable(6, VariableLevel::Private, magX);
+    // logger->addVariable(7, VariableLevel::Private, magX);
+    // logger->addVariable(8, VariableLevel::Private, magX);
+
+    // logger->addVariable(9, VariableLevel::Private, gyrX);
+    // logger->addVariable(10, VariableLevel::Private, gyrX);
+    // logger->addVariable(11, VariableLevel::Private, gyrX);
   }
 
   void setup()
@@ -73,6 +90,15 @@ public:
     gyrX = g.gyro.x;
     gyrY = g.gyro.y;
     gyrZ = g.gyro.z;
+
+    // est.update(timer.measure(), gyrX, gyrY, gyrZ, accX, accY, accZ, magX, magY, magZ);
+    est.update(timer.measure(), gyrX, gyrY, gyrZ, accX, accY, accZ, .0, .0, .0);
+
+    // yaw = est.fusedYaw();
+    // pitch = est.eulerPitch();
+    // roll = est.fusedRoll();
+
+    roll = (accX / 10.0) * M_PI;
   }
 };
 
