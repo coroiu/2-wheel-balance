@@ -82,6 +82,11 @@ public:
     testSequence.run();
   }
 
+  void adjustPower(double adjustment)
+  {
+    setPower(power + adjustment);
+  }
+
   void setPower(double _power)
   {
     if (_power < -1.0)

@@ -7,6 +7,7 @@
 #include "Wheel.h"
 #include "Motor.h"
 #include "WheelSpeedController.h"
+// #include "WheelAccelSpeedController.h"
 #include "GlobalTicker.h"
 
 void log();
@@ -22,6 +23,7 @@ DataLogger dataLogger;
 Wheel leftWheel(&dataLogger, WHEEL_LEFT, WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B);
 Motor leftMotor(&dataLogger, MOTOR_LEFT, MOTOR_LEFT_IN_1, MOTOR_LEFT_IN_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL);
 WheelSpeedController leftController(&dataLogger, &leftWheel, &leftMotor);
+// WheelAccelSpeedController leftController(&dataLogger, &leftWheel, &leftMotor);
 
 void setup()
 {
