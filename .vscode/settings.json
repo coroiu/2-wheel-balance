@@ -7,5 +7,7 @@
         "statusBarItem.remoteBackground": "#3b92bf",
         "statusBarItem.remoteForeground": "#e7e7e7"
     },
-    "peacock.color": "#3b92bf"
+    "peacock.color": "#3b92bf",
+    "editor.formatOnSave": false,
+    "editor.formatOnPaste": false
 }

@@ -3,6 +3,12 @@
 #include <SerialDataLogger.h>
 #include <Ticker.h>
 #include <CommandHandler.h>
+
+//
+// Needed on macos
+#include <FilterChain.h>
+//
+
 #include "Constants.h"
 #include "Wheel.h"
 #include "Motor.h"

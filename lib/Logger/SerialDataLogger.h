@@ -3,6 +3,7 @@
 
 #include <map>
 #include <functional>
+#include <vector>
 #include <Arduino.h>
 #include "DataLogger.h"
 #include "OffsetDataLogger.h"
