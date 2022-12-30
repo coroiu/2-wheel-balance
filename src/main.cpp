@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <FunctionalInterrupt.h>
+#include <SerialAdvancedDataLogger.h>
 #include <SerialDataLogger.h>
 #include <Ticker.h>
 #include <CommandHandler.h>
@@ -17,21 +18,24 @@
 #include "GlobalTicker.h"
 
 void log();
+void logMeta();
 void timedLoop();
 void control();
 
 Ticker logTicker([]() { log(); }, INTERVAL_LOG_MICROS, 0, MICROS_MICROS);
+Ticker logMetaTicker([]() { logMeta(); }, INTERVAL_LOG_META_MICROS, 0, MICROS_MICROS);
 Ticker loopTicker([]() { timedLoop(); }, INTERVAL_LOOP_MICROS, 0, MICROS_MICROS);
 Ticker controlTicker([]() { control(); }, INTERVAL_CONTROL_MICROS, 0, MICROS_MICROS);
 
 CommandHandler commandHandler(&Serial);
+SerialAdvancedDataLogger advancedDataLogger;
 SerialDataLogger dataLogger;
 
-Wheel leftWheel(dataLogger.createLogger(1000), WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B, true);
+Wheel leftWheel(advancedDataLogger.createLogger("Left wheel"), WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B, true);
 Motor leftMotor(dataLogger.createLogger(1100), MOTOR_LEFT_IN_1, MOTOR_LEFT_IN_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL);
 WheelSpeedController leftController(dataLogger.createLogger(1200), &leftWheel, &leftMotor);
 
-Wheel rightWheel(dataLogger.createLogger(2000), WHEEL_RIGHT_PIN_A, WHEEL_RIGHT_PIN_B, false);
+Wheel rightWheel(advancedDataLogger.createLogger("Right wheel"), WHEEL_RIGHT_PIN_A, WHEEL_RIGHT_PIN_B, false);
 Motor rightMotor(dataLogger.createLogger(2100), MOTOR_RIGHT_IN_1, MOTOR_RIGHT_IN_2, MOTOR_RIGHT_PWM_PIN, MOTOR_RIGHT_PWM_CHANNEL);
 WheelSpeedController rightController(dataLogger.createLogger(2200), &leftWheel, &rightMotor);
 
@@ -50,6 +54,7 @@ void setup()
   imu.setup();
 
   logTicker.start();
+  logMetaTicker.start();
   loopTicker.start();
   controlTicker.start();
 
@@ -92,6 +97,7 @@ void setup()
 void loop()
 {
   logTicker.update();
+  logMetaTicker.update();
   loopTicker.update();
   controlTicker.update();
   GlobalTicker::updateAll();
@@ -101,7 +107,13 @@ void loop()
 
 void log()
 {
-  dataLogger.log();
+  // dataLogger.log();
+  advancedDataLogger.log();
+}
+
+void logMeta()
+{
+  advancedDataLogger.logMeta();
 }
 
 void timedLoop()

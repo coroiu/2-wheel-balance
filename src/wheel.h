@@ -9,7 +9,7 @@
 #include <ExpRollingSumFilter.h>
 #include <FunctionalInterrupt.h>
 #include <Ticker.h>
-#include <DataLogger.h>
+#include <AdvancedDataLogger.h>
 #include <Speed.h>
 #include "Constants.h"
 
@@ -38,14 +38,14 @@ class Wheel
   int sensorA = LOW;
   int sensorB = LOW;
 
-  DataLogger *logger;
+  AdvancedDataLogger *logger;
   int pinA;
   int pinB;
 
 public:
-  Wheel(DataLogger *logger, int pinA, int pinB, bool reversed) : logger(logger), pinA(pinA), pinB(pinB), directionReversal(reversed ? -1 : 1)
+  Wheel(AdvancedDataLogger *logger, int pinA, int pinB, bool reversed) : logger(logger), pinA(pinA), pinB(pinB), directionReversal(reversed ? -1 : 1)
   {
-    logger->addCalculatedDouble(0, VariableLevel::Public, [this]() { return getSpeed(); });
+    logger->addDouble("Speed", "event/sec", [this]() { return getSpeed(); });
     // logger->addCalculatedDouble(wheelId + 1, VariableLevel::Private, [this]() { return speedAR.getSpeed(); });
     // logger->addCalculatedDouble(wheelId + 2, VariableLevel::Private, [this]() { return speedBR.getSpeed(); });
     // logger->addVariable(wheelId + 1, VariableLevel::Private, sensorA);
