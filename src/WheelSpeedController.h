@@ -10,7 +10,7 @@
 // #define WHEEL_SPEED_CONTROLLER_F 1.0 / (9.0 * 100.0)
 
 #include <MiniPID.h>
-#include <DataLogger.h>
+#include <AdvancedDataLogger.h>
 #include "Wheel.h"
 #include "Motor.h"
 
@@ -25,7 +25,7 @@ class WheelSpeedController
   Motor *motor;
 
 public:
-  WheelSpeedController(DataLogger *dataLogger, Wheel *wheel, Motor *motor)
+  WheelSpeedController(AdvancedDataLogger *dataLogger, Wheel *wheel, Motor *motor)
       : controller(WHEEL_SPEED_CONTROLLER_P, WHEEL_SPEED_CONTROLLER_I, WHEEL_SPEED_CONTROLLER_D, WHEEL_SPEED_CONTROLLER_F),
         wheel(wheel),
         motor(motor)
@@ -34,7 +34,7 @@ public:
     controller.setOutputFilter(.1);
     controller.setOutputRampRate(.2);
     controller.setSetpointRange(10);
-    dataLogger->addVariable(0, VariableLevel::Public, output);
+    dataLogger->addDouble("Output", "%", [this]() { return this->output; });
   }
 
   void enable()

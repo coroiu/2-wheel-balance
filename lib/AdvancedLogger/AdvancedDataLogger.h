@@ -44,6 +44,7 @@ public:
   {
     variables.push_back(VariableInfo{
         .name = name,
+        .unit = unit,
         .type = VariableType::Integer,
         .integerFunction = integerFunction
     });
@@ -53,6 +54,7 @@ public:
   {
     variables.push_back(VariableInfo{
         .name = name,
+        .unit = unit,
         .type = VariableType::Double,
         .doubleFunction = doubleFunction
     });

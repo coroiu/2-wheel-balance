@@ -26,14 +26,14 @@ class InertialMeasurementUnit
   double yaw, pitch, roll;
 
 public:
-  InertialMeasurementUnit(DataLogger *logger)
+  InertialMeasurementUnit(AdvancedDataLogger *logger)
   {
     // Est.setPIGains(2.2, 2.65, 10, 1.25);
     est.setPIGains(0.5, 2.65, 5, 1.25);
 
-    logger->addVariable(0, VariableLevel::Public, yaw);
-    logger->addVariable(1, VariableLevel::Public, pitch);
-    logger->addVariable(2, VariableLevel::Public, roll);
+    logger->addDouble("Yaw", "rad", [this]() { return this->yaw; });
+    logger->addDouble("Pitch", "rad", [this]() { return this->pitch; });
+    logger->addDouble("Roll", "rad", [this]() { return this->roll; });
 
     // logger->addVariable(3, VariableLevel::Private, accX);
     // logger->addVariable(4, VariableLevel::Private, accY);
@@ -94,11 +94,11 @@ public:
     // est.update(timer.measure(), gyrX, gyrY, gyrZ, accX, accY, accZ, magX, magY, magZ);
     est.update(timer.measure(), gyrX, gyrY, gyrZ, accX, accY, accZ, .0, .0, .0);
 
-    // yaw = est.fusedYaw();
-    // pitch = est.eulerPitch();
-    // roll = est.fusedRoll();
+    yaw = est.fusedYaw();
+    pitch = est.eulerPitch();
+    roll = est.fusedRoll();
 
-    roll = (accX / 10.0) * M_PI;
+    // roll = (accX / 10.0) * M_PI;
   }
 };
 

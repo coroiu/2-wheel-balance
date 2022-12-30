@@ -53,8 +53,8 @@ public:
   void logMeta()
   {
     doc.clear();
-    doc["t"] = "2-wheel-balance";
-    auto groups = doc.createNestedArray("g");
+    doc["title"] = "2-wheel-balance";
+    auto groups = doc.createNestedArray("groups");
     int index(1);
 
     for (auto itLoggers = loggers.begin(); itLoggers != loggers.end(); ++itLoggers)
@@ -62,9 +62,9 @@ public:
       auto& logger = *itLoggers;
       auto& variables = logger->variables;
       auto group = groups.createNestedObject();
-      auto datasets = group.createNestedArray("d");
+      auto datasets = group.createNestedArray("datasets");
       
-      group["t"] = logger->name;
+      group["title"] = logger->name;
 
       for (auto itVariables = variables.begin(); itVariables != variables.end(); ++itVariables)
       {
@@ -73,9 +73,11 @@ public:
         {
           // group['w'] = nothing
           auto dataset = datasets.createNestedObject();
-          dataset["t"] = variable.name;
-          dataset["u"] = variable.unit;
-          dataset["v"] = "%" + std::to_string(index++);
+          dataset["title"] = variable.name;
+          dataset["unit"] = variable.unit;
+          // dataset["value"] = "%1";
+          dataset["value"] = "%" + std::to_string(index++);
+          // dataset["index"] = index++;
           // dataset['w'] = nothing
         }
       }

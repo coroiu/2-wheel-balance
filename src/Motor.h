@@ -1,7 +1,7 @@
 #ifndef _MOTOR_H
 #define _MOTOR_H
 
-#include <DataLogger.h>
+#include <AdvancedDataLogger.h>
 #include "Sequence.h"
 #include "utils.h"
 
@@ -10,14 +10,14 @@ class Motor
   double power = .0;
   Sequence testSequence;
 
-  DataLogger *logger;
+  AdvancedDataLogger *logger;
   int pinA;
   int pinB;
   int pwmPin;
   int pwmChannel;
 
 public:
-  Motor(DataLogger *dataLogger, int pinA, int pinB, int pwmPin, int pwmChannel) : logger(dataLogger), pinA(pinA), pinB(pinB), pwmPin(pwmPin), pwmChannel(pwmChannel)
+  Motor(AdvancedDataLogger *dataLogger, int pinA, int pinB, int pwmPin, int pwmChannel) : logger(dataLogger), pinA(pinA), pinB(pinB), pwmPin(pwmPin), pwmChannel(pwmChannel)
   {
     testSequence.addInstruction(0, []() {
       Serial.println("Test sequence started.");
@@ -66,7 +66,7 @@ public:
   void setup()
   {
     Serial.printf("Setting up motor %d-%d-%d\n", pinA, pinB, pwmPin);
-    logger->addVariable(0, VariableLevel::Public, power);
+    logger->addDouble("Power", "%", [this]() { return this->power; });
     pinMode(pinA, OUTPUT);
     pinMode(pinB, OUTPUT);
     digitalWrite(pinA, LOW);
