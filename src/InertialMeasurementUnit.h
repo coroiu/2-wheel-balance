@@ -94,11 +94,11 @@ public:
     // est.update(timer.measure(), gyrX, gyrY, gyrZ, accX, accY, accZ, magX, magY, magZ);
     est.update(timer.measure(), gyrX, gyrY, gyrZ, accX, accY, accZ, .0, .0, .0);
 
-    yaw = est.fusedYaw();
-    pitch = est.eulerPitch();
-    roll = est.fusedRoll();
+    // yaw = est.fusedYaw();
+    // pitch = est.eulerPitch();
+    // roll = est.fusedRoll();
 
-    // roll = (accX / 10.0) * M_PI;
+    roll = (accX / 10.0) * M_PI;
   }
 };
 

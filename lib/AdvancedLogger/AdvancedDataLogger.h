@@ -59,6 +59,8 @@ public:
         .doubleFunction = doubleFunction
     });
   }
+
+  // void add
 };
 
 #endif
