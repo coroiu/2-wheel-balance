@@ -59,10 +59,8 @@ void setup()
   controlTicker.start();
 
   commandHandler.command("test-motors", [](CommandHandler *handler) {
-    digitalWrite(WHEEL_LEFT_PIN_A, HIGH);
-    digitalWrite(MOTOR_LEFT_PWM_PIN, HIGH);
-    // leftMotor.test();
-    // rightMotor.test();
+    leftMotor.test();
+    rightMotor.test();
   });
 
   commandHandler.command("set-motors", [](CommandHandler *handler) {
