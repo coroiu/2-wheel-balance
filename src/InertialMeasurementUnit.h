@@ -23,9 +23,9 @@ class InertialMeasurementUnit
   double magX, magY, magZ;
   double gyrX, gyrY, gyrZ;
 
-  double yaw, pitch, roll;
-
 public:
+  double yaw, pitch, roll;
+  
   InertialMeasurementUnit(AdvancedDataLogger *logger)
   {
     // Est.setPIGains(2.2, 2.65, 10, 1.25);

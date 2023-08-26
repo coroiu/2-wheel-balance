@@ -13,6 +13,7 @@
 #include "Constants.h"
 #include "Wheel.h"
 #include "Motor.h"
+#include "RollController.h"
 #include "WheelSpeedController.h"
 #include "InertialMeasurementUnit.h"
 #include "GlobalTicker.h"
@@ -31,6 +32,8 @@ CommandHandler commandHandler(&Serial);
 SerialAdvancedDataLogger advancedDataLogger;
 // SerialDataLogger dataLogger;
 
+InertialMeasurementUnit imu(advancedDataLogger.createLogger("IMU"));
+
 Wheel leftWheel(advancedDataLogger.createLogger("Left wheel"), WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B, true);
 Motor leftMotor(advancedDataLogger.createLogger("Left motor"), MOTOR_LEFT_IN_1, MOTOR_LEFT_IN_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL);
 WheelSpeedController leftController(advancedDataLogger.createLogger("Left controller"), &leftWheel, &leftMotor);
@@ -38,8 +41,9 @@ WheelSpeedController leftController(advancedDataLogger.createLogger("Left contro
 Wheel rightWheel(advancedDataLogger.createLogger("Right wheel"), WHEEL_RIGHT_PIN_A, WHEEL_RIGHT_PIN_B, false);
 Motor rightMotor(advancedDataLogger.createLogger("Right motor"), MOTOR_RIGHT_IN_1, MOTOR_RIGHT_IN_2, MOTOR_RIGHT_PWM_PIN, MOTOR_RIGHT_PWM_CHANNEL);
 WheelSpeedController rightController(advancedDataLogger.createLogger("Right controller"), &leftWheel, &rightMotor);
+RollController rollController(advancedDataLogger.createLogger("Roll controller"), &imu, &leftMotor);
 
-InertialMeasurementUnit imu(advancedDataLogger.createLogger("IMU"));
+Sequence rollControllSequence;
 
 void setup()
 {
@@ -57,6 +61,18 @@ void setup()
   logMetaTicker.start();
   loopTicker.start();
   controlTicker.start();
+
+  rollControllSequence.addInstruction(0, []() {
+    Serial.println("Roll controll sequence started.");
+  });
+  rollControllSequence.addInstruction(1000, [&]() {
+    Serial.println("Controller enabled");
+    rollController.enable();
+  });
+  rollControllSequence.addInstruction(10000, [&]() {
+    Serial.println("Controller disabled");
+    rollController.disable();
+  });
 
   commandHandler.command("test-motors", [](CommandHandler *handler) {
     leftMotor.test();
@@ -89,6 +105,15 @@ void setup()
     rightController.setSpeed(speed);
     leftController.enable();
     rightController.enable();
+  });
+
+  commandHandler.command("disable-wheel-speed", [](CommandHandler *handler) {
+    leftController.disable();
+    rightController.disable();
+  });
+
+  commandHandler.command("enable-roll-controll", [](CommandHandler *handler) {
+    rollControllSequence.run();
   });
 
   Serial.println("Setup finished");
@@ -127,4 +152,5 @@ void control()
 {
   leftController.control();
   rightController.control();
+  rollController.control();
 }
