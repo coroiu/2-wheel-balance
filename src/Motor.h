@@ -1,6 +1,10 @@
 #ifndef _MOTOR_H
 #define _MOTOR_H
 
+#include <esp32-hal.h>
+#include <soc/soc_caps.h>
+#include <driver/ledc.h>
+
 #include <AdvancedDataLogger.h>
 #include "Sequence.h"
 #include "utils.h"
@@ -72,6 +76,7 @@ public:
     digitalWrite(pinA, LOW);
     digitalWrite(pinB, LOW);
     ledcAttachPin(pwmPin, pwmChannel);
+    // double resFreq = custom_ledcSetup(pwmChannel, MOTOR_PWM_FREQ, MOTOR_PWM_RESOLUTION_BITS);
     double resFreq = ledcSetup(pwmChannel, MOTOR_PWM_FREQ, MOTOR_PWM_RESOLUTION_BITS);
     Serial.printf("Done. Using pwm freq: %.4f\n", resFreq);
   }
@@ -103,13 +108,13 @@ public:
     {
       digitalWrite(pinA, LOW);
       digitalWrite(pinB, HIGH);
-      ledcWrite(pwmChannel, -65535 * _power);
+      ledcWrite(pwmChannel, abs(MOTOR_PWM_MAX_VALUE * _power));
     }
     else if (_power > .0)
     {
       digitalWrite(pinA, HIGH);
       digitalWrite(pinB, LOW);
-      ledcWrite(pwmChannel, 65535 * _power);
+      ledcWrite(pwmChannel, abs(MOTOR_PWM_MAX_VALUE * _power));
     }
 
     power = _power;

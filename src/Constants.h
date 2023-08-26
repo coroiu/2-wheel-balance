@@ -13,24 +13,28 @@
 
 #define WHEEL_SPEED_RESET_INTERVAL_MICROS 1000 * 400
 
-#define WHEEL_LEFT_PIN_A 16
-#define WHEEL_LEFT_PIN_B 19
+// old v1 esp-32
+#define WHEEL_LEFT_PIN_A 7 // 16
+#define WHEEL_LEFT_PIN_B 21 // 16
 
-#define WHEEL_RIGHT_PIN_A 21
-#define WHEEL_RIGHT_PIN_B 17
+#define WHEEL_RIGHT_PIN_A 37 // 21
+#define WHEEL_RIGHT_PIN_B 8 // 17
 
-#define MOTOR_PWM_FREQ 1500000 // 1.5 Mhz
-#define MOTOR_PWM_RESOLUTION_BITS 16
+// Supported PWM frequency https://gist.github.com/benpeoples/3aa57bffc0f26ede6623ca520f26628c
+// #define MOTOR_PWM_FREQ 1500000 // 1.5 Mhz
+#define MOTOR_PWM_FREQ 19531 // 20 Khz
+#define MOTOR_PWM_RESOLUTION_BITS 12
+#define MOTOR_PWM_MAX_VALUE (1 << MOTOR_PWM_RESOLUTION_BITS) // 2 ^ resolution
 #define MOTOR_POWER_RESOLUTION_DECIMALS 5
 
-#define MOTOR_LEFT_IN_1 12
-#define MOTOR_LEFT_IN_2 27
-#define MOTOR_LEFT_PWM_PIN 33
+#define MOTOR_LEFT_IN_1 12 // 12
+#define MOTOR_LEFT_IN_2 27 // 27
+#define MOTOR_LEFT_PWM_PIN 33 // 33
 #define MOTOR_LEFT_PWM_CHANNEL 0
 
-#define MOTOR_RIGHT_IN_1 32
-#define MOTOR_RIGHT_IN_2 15
-#define MOTOR_RIGHT_PWM_PIN 13
+#define MOTOR_RIGHT_IN_1 32 // 32
+#define MOTOR_RIGHT_IN_2 15 // 15
+#define MOTOR_RIGHT_PWM_PIN 13 // 13
 #define MOTOR_RIGHT_PWM_CHANNEL 1
 
 #endif
