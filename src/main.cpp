@@ -13,6 +13,7 @@
 #include "Constants.h"
 #include "Wheel.h"
 #include "Motor.h"
+#include "Movement.h"
 #include "RollController.h"
 #include "WheelSpeedController.h"
 #include "InertialMeasurementUnit.h"
@@ -41,7 +42,9 @@ WheelSpeedController leftController(advancedDataLogger.createLogger("Left contro
 Wheel rightWheel(advancedDataLogger.createLogger("Right wheel"), WHEEL_RIGHT_PIN_A, WHEEL_RIGHT_PIN_B, false);
 Motor rightMotor(advancedDataLogger.createLogger("Right motor"), MOTOR_RIGHT_IN_1, MOTOR_RIGHT_IN_2, MOTOR_RIGHT_PWM_PIN, MOTOR_RIGHT_PWM_CHANNEL);
 WheelSpeedController rightController(advancedDataLogger.createLogger("Right controller"), &leftWheel, &rightMotor);
-RollController rollController(advancedDataLogger.createLogger("Roll controller"), &imu, &leftMotor);
+
+Movement movement(advancedDataLogger.createLogger("Movement"), &leftMotor, &rightMotor);
+RollController rollController(advancedDataLogger.createLogger("Roll controller"), &imu, &movement);
 
 Sequence rollControllSequence;
 
@@ -69,7 +72,7 @@ void setup()
     Serial.println("Controller enabled");
     rollController.enable();
   });
-  rollControllSequence.addInstruction(10000, [&]() {
+  rollControllSequence.addInstruction(20000, [&]() {
     Serial.println("Controller disabled");
     rollController.disable();
   });

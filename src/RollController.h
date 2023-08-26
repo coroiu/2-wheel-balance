@@ -5,12 +5,12 @@
 #include <AdvancedDataLogger.h>
 #include "InertialMeasurementUnit.h"
 #include "Wheel.h"
-#include "Motor.h"
+#include "Movement.h"
 
 #define MAX_INPUT M_PI
-#define ROLL_CONTROLLER_P 1
-#define ROLL_CONTROLLER_I 0.001
-#define ROLL_CONTROLLER_D 0
+#define ROLL_CONTROLLER_P 0.3
+#define ROLL_CONTROLLER_I 0.01
+#define ROLL_CONTROLLER_D 0.2
 #define ROLL_CONTROLLER_F 0
 
 class RollController
@@ -21,15 +21,15 @@ class RollController
 
   MiniPID controller;
   InertialMeasurementUnit *imu;
-  Motor *motor;
+  Movement *movement;
 
 public:
-  RollController(AdvancedDataLogger *dataLogger, InertialMeasurementUnit *imu, Motor *motor)
+  RollController(AdvancedDataLogger *dataLogger, InertialMeasurementUnit *imu, Movement *movement)
       : controller(ROLL_CONTROLLER_P, ROLL_CONTROLLER_I, ROLL_CONTROLLER_D, ROLL_CONTROLLER_F),
         imu(imu),
-        motor(motor)
+        movement(movement)
   {
-    controller.setOutputLimits(-1.0, 1.0);
+    controller.setOutputLimits(1, 1);
     controller.setOutputFilter(.1);
     controller.setOutputRampRate(.2);
     controller.setSetpointRange(10);
@@ -44,7 +44,7 @@ public:
   void disable()
   {
     active = false;
-    motor->setPower(0);
+    movement->setPower(0);
   }
 
   void setTargetRoll(double roll)
@@ -63,8 +63,8 @@ public:
       else if (roll < -MAX_INPUT)
         roll = -MAX_INPUT;
 
-      output = controller.getOutput(roll, setPoint);
-      motor->setPower(output);
+      output = -controller.getOutput(roll, setPoint);
+      movement->setPower(output);
     }
     else
     {
