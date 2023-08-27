@@ -28,17 +28,22 @@ void control();
 CommandHandler commandHandler(&Serial);
 SerialAdvancedDataLogger advancedDataLogger;
 
+TaskHandle_t priorityTask;
+void priorityLoop(void* parameter);
+
 Ticker logTicker([]() { log(); }, INTERVAL_LOG_MICROS, 0, MICROS_MICROS);
 Ticker logMetaTicker([]() { logMeta(); }, INTERVAL_LOG_META_MICROS, 0, MICROS_MICROS);
 Ticker measureLoopTicker([]() { measureLoop(); }, INTERVAL_LOOP_MICROS, 0, MICROS_MICROS);
 Ticker controlTicker([]() { control(); }, INTERVAL_CONTROL_MICROS, 0, MICROS_MICROS);
 
 Timer mainLoopTimer;
+Timer priorityLoopTimer;
 Timer logTimer;
 Timer logMetaTimer;
 Timer measureLoopTimer;
 Timer controlTimer;
 double mainLoopTime = .0;
+double priorityLoopTime = .0;
 double logTime = .0;
 double logMetaTime = .0;
 double measureLoopTime = .0;
@@ -147,12 +152,23 @@ void setup()
   });
 
   timerLogger->addDouble("MainLoop", "ms", [&]() { return mainLoopTime; });
+  timerLogger->addDouble("SecondaryLoop", "ms", [&]() { return priorityLoopTime; });
   timerLogger->addDouble("LogLoop", "ms", [&]() { return logTime; });
   timerLogger->addDouble("LogMetaLoop", "ms", [&]() { return logMetaTime; });
   timerLogger->addDouble("MeasureLoop", "ms", [&]() { return measureLoopTime; });
   timerLogger->addDouble("Control", "ms", [&]() { return controlTime; });
 
   Serial.println("Setup finished");
+
+  xTaskCreatePinnedToCore(
+    priorityLoop,
+    "DualCoreTask",
+    10000,
+    NULL,
+    10,
+    &priorityTask,
+    0
+  );
 }
 
 void loop()
@@ -161,11 +177,19 @@ void loop()
 
   logTicker.update();
   logMetaTicker.update();
-  measureLoopTicker.update();
-  controlTicker.update();
   GlobalTicker::updateAll();
 
   commandHandler.update();
+}
+
+void priorityLoop(void* parameter) {
+  Serial.println("Starting priority loop...");
+  for (;;) {
+    priorityLoopTime = priorityLoopTimer.measure() / 1000.0;
+
+    measureLoopTicker.update();
+    controlTicker.update();
+  }
 }
 
 void log()
