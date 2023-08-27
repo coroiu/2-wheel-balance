@@ -12,6 +12,7 @@
 #define ROLL_CONTROLLER_I 0
 #define ROLL_CONTROLLER_D 0
 #define ROLL_CONTROLLER_F 0
+#define ROLL_CONTROLLER_SHUTOFF 50
 
 class RollController
 {
@@ -43,6 +44,7 @@ public:
   void enable()
   {
     active = true;
+    controller.reset();
   }
 
   void disable()
@@ -65,6 +67,11 @@ public:
     if (active)
     {
       double roll = imu->roll;
+
+      if (abs(roll) > ROLL_CONTROLLER_SHUTOFF) {
+        disable();
+        return;
+      }
 
       if (roll > MAX_INPUT)
         roll = MAX_INPUT;
