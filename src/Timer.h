@@ -25,10 +25,10 @@ public:
     return interval;
   }
 
-  long measureSeconds()
+  double measureSeconds()
   {
     auto interval = measure();
-    return interval * 10e6;
+    return interval * 10e-6;
   }
 };
 

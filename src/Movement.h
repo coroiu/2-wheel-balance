@@ -22,7 +22,7 @@ public:
 
   void setup()
   {
-    // logger->addDouble("Power", "%", [this]() { return this->power; });
+    logger->addDouble("Power", "%", [this]() { return this->power; });
   }
 
   void setPower(double _power)

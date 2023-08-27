@@ -23,6 +23,7 @@ class InertialMeasurementUnit
   double accX, accY, accZ;
   double magX, magY, magZ;
   double gyrX, gyrY, gyrZ;
+  double loopTime = .0;
 
 public:
   double yaw, pitch, roll;
@@ -49,6 +50,7 @@ public:
 
     auto imuLogger = logger->createLogger("IMU");
     imuLogger->addDouble("Roll", "rad", [this]() { return this->roll; });
+    imuLogger->addDouble("Timing", "ms", [this]() { return this->loopTime*1000.0; });
   }
 
   void setup()
@@ -79,6 +81,8 @@ public:
 
   void loop()
   {
+    loopTime = timer.measureSeconds();
+
     lsm.read();
     lsm.getEvent(&a, &m, &g, &temp);
 

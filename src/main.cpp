@@ -22,27 +22,38 @@
 
 void log();
 void logMeta();
-void timedLoop();
+void measureLoop();
 void control();
-
-Ticker logTicker([]() { log(); }, INTERVAL_LOG_MICROS, 0, MICROS_MICROS);
-Ticker logMetaTicker([]() { logMeta(); }, INTERVAL_LOG_META_MICROS, 0, MICROS_MICROS);
-Ticker loopTicker([]() { timedLoop(); }, INTERVAL_LOOP_MICROS, 0, MICROS_MICROS);
-Ticker controlTicker([]() { control(); }, INTERVAL_CONTROL_MICROS, 0, MICROS_MICROS);
 
 CommandHandler commandHandler(&Serial);
 SerialAdvancedDataLogger advancedDataLogger;
-// SerialDataLogger dataLogger;
+
+Ticker logTicker([]() { log(); }, INTERVAL_LOG_MICROS, 0, MICROS_MICROS);
+Ticker logMetaTicker([]() { logMeta(); }, INTERVAL_LOG_META_MICROS, 0, MICROS_MICROS);
+Ticker measureLoopTicker([]() { measureLoop(); }, INTERVAL_LOOP_MICROS, 0, MICROS_MICROS);
+Ticker controlTicker([]() { control(); }, INTERVAL_CONTROL_MICROS, 0, MICROS_MICROS);
+
+Timer mainLoopTimer;
+Timer logTimer;
+Timer logMetaTimer;
+Timer measureLoopTimer;
+Timer controlTimer;
+double mainLoopTime = .0;
+double logTime = .0;
+double logMetaTime = .0;
+double measureLoopTime = .0;
+double controlTime = .0;
+auto timerLogger = advancedDataLogger.createLogger("Timing");
 
 InertialMeasurementUnit imu(&advancedDataLogger);
 
 Wheel leftWheel(advancedDataLogger.createLogger("Left wheel"), WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B, true);
 Motor leftMotor(advancedDataLogger.createLogger("Left motor"), MOTOR_LEFT_IN_1, MOTOR_LEFT_IN_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL, MOTOR_LEFT_DEADZONE);
-WheelSpeedController leftController(advancedDataLogger.createLogger("Left controller"), &leftWheel, &leftMotor);
+// WheelSpeedController leftController(advancedDataLogger.createLogger("Left controller"), &leftWheel, &leftMotor);
 
 Wheel rightWheel(advancedDataLogger.createLogger("Right wheel"), WHEEL_RIGHT_PIN_A, WHEEL_RIGHT_PIN_B, false);
 Motor rightMotor(advancedDataLogger.createLogger("Right motor"), MOTOR_RIGHT_IN_1, MOTOR_RIGHT_IN_2, MOTOR_RIGHT_PWM_PIN, MOTOR_RIGHT_PWM_CHANNEL, MOTOR_RIGHT_DEADZONE);
-WheelSpeedController rightController(advancedDataLogger.createLogger("Right controller"), &leftWheel, &rightMotor);
+// WheelSpeedController rightController(advancedDataLogger.createLogger("Right controller"), &leftWheel, &rightMotor);
 
 Movement movement(advancedDataLogger.createLogger("Movement"), &leftMotor, &rightMotor);
 RollController rollController(advancedDataLogger.createLogger("Roll controller"), &imu, &movement);
@@ -66,7 +77,7 @@ void setup()
 
   logTicker.start();
   logMetaTicker.start();
-  loopTicker.start();
+  measureLoopTicker.start();
   controlTicker.start();
 
   rollControllSequence.addInstruction(0, []() {
@@ -98,30 +109,30 @@ void setup()
     rightMotor.setPower((double)power / 100.0);
   });
 
-  commandHandler.command("enable-wheel-speed", [](CommandHandler *handler) {
-    leftController.enable();
-    rightController.enable();
-  });
+  // commandHandler.command("enable-wheel-speed", [](CommandHandler *handler) {
+  //   leftController.enable();
+  //   rightController.enable();
+  // });
 
-  commandHandler.command("disable-wheel-speed", [](CommandHandler *handler) {
-    leftController.disable();
-    rightController.disable();
-  });
+  // commandHandler.command("disable-wheel-speed", [](CommandHandler *handler) {
+  //   leftController.disable();
+  //   rightController.disable();
+  // });
 
-  commandHandler.command("set-wheel-speed", [](CommandHandler *handler) {
-    if (handler->argc < 2)
-      return;
-    int speed = atoi(handler->argv[1]);
-    leftController.setSpeed(speed);
-    rightController.setSpeed(speed);
-    leftController.enable();
-    rightController.enable();
-  });
+  // commandHandler.command("set-wheel-speed", [](CommandHandler *handler) {
+  //   if (handler->argc < 2)
+  //     return;
+  //   int speed = atoi(handler->argv[1]);
+  //   leftController.setSpeed(speed);
+  //   rightController.setSpeed(speed);
+  //   leftController.enable();
+  //   rightController.enable();
+  // });
 
-  commandHandler.command("disable-wheel-speed", [](CommandHandler *handler) {
-    leftController.disable();
-    rightController.disable();
-  });
+  // commandHandler.command("disable-wheel-speed", [](CommandHandler *handler) {
+  //   leftController.disable();
+  //   rightController.disable();
+  // });
 
   commandHandler.command("enable-roll-controll", [](CommandHandler *handler) {
     if (handler->argc < 4)
@@ -133,14 +144,22 @@ void setup()
     rollControllSequence.run();
   });
 
+  timerLogger->addDouble("MainLoop", "ms", [&]() { return mainLoopTime; });
+  timerLogger->addDouble("LogLoop", "ms", [&]() { return logTime; });
+  timerLogger->addDouble("LogMetaLoop", "ms", [&]() { return logMetaTime; });
+  timerLogger->addDouble("MeasureLoop", "ms", [&]() { return measureLoopTime; });
+  timerLogger->addDouble("Control", "ms", [&]() { return controlTime; });
+
   Serial.println("Setup finished");
 }
 
 void loop()
 {
+  mainLoopTime = mainLoopTimer.measure() / 1000.0;
+
   logTicker.update();
   logMetaTicker.update();
-  loopTicker.update();
+  measureLoopTicker.update();
   controlTicker.update();
   GlobalTicker::updateAll();
 
@@ -149,17 +168,20 @@ void loop()
 
 void log()
 {
+  logTime = logTimer.measure() / 1000.0;
   // dataLogger.log();
   advancedDataLogger.log();
 }
 
 void logMeta()
 {
+  logMetaTime = logMetaTimer.measure() / 1000.0;
   advancedDataLogger.logMeta();
 }
 
-void timedLoop()
+void measureLoop()
 {
+  measureLoopTime = measureLoopTimer.measure() / 1000.0;
   leftWheel.loop();
   rightWheel.loop();
   imu.loop();
@@ -167,7 +189,8 @@ void timedLoop()
 
 void control()
 {
-  leftController.control();
-  rightController.control();
+  controlTime = controlTimer.measure() / 1000.0;
+  // leftController.control();
+  // rightController.control();
   rollController.control();
 }

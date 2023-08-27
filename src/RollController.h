@@ -19,10 +19,12 @@ class RollController
   bool active = false;
   double setPoint = .0;
   double output = .0;
+  double loopTime = .0;
 
   MiniPID controller;
   InertialMeasurementUnit *imu;
   Movement *movement;
+  Timer timer;
 
 public:
   RollController(AdvancedDataLogger *dataLogger, InertialMeasurementUnit *imu, Movement *movement)
@@ -35,6 +37,7 @@ public:
     // controller.setOutputRampRate(.2);
     // controller.setSetpointRange(10);
     dataLogger->addDouble("Output", "%", [this]() { return this->output; });
+    // dataLogger->addDouble("Timing", "ms", [this]() { return this->loopTime*1000.0; });
   }
 
   bool isActive() {
@@ -64,6 +67,8 @@ public:
 
   void control()
   {
+    loopTime = timer.measureSeconds();
+
     if (active)
     {
       double roll = imu->roll;
