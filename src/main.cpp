@@ -152,7 +152,7 @@ void setup()
   });
 
   timerLogger->addDouble("MainLoop", "ms", [&]() { return mainLoopTime; });
-  timerLogger->addDouble("SecondaryLoop", "ms", [&]() { return priorityLoopTime; });
+  timerLogger->addDouble("PriorityLoop", "ms", [&]() { return priorityLoopTime; });
   timerLogger->addDouble("LogLoop", "ms", [&]() { return logTime; });
   timerLogger->addDouble("LogMetaLoop", "ms", [&]() { return logMetaTime; });
   timerLogger->addDouble("MeasureLoop", "ms", [&]() { return measureLoopTime; });
