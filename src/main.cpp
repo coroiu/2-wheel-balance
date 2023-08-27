@@ -33,7 +33,7 @@ CommandHandler commandHandler(&Serial);
 SerialAdvancedDataLogger advancedDataLogger;
 // SerialDataLogger dataLogger;
 
-InertialMeasurementUnit imu(advancedDataLogger.createLogger("IMU"));
+InertialMeasurementUnit imu(&advancedDataLogger);
 
 Wheel leftWheel(advancedDataLogger.createLogger("Left wheel"), WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B, true);
 Motor leftMotor(advancedDataLogger.createLogger("Left motor"), MOTOR_LEFT_IN_1, MOTOR_LEFT_IN_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL);
@@ -70,6 +70,7 @@ void setup()
   });
   rollControllSequence.addInstruction(1000, [&]() {
     Serial.println("Controller enabled");
+    rollController.setTargetRoll(-2.5);
     rollController.enable();
   });
   rollControllSequence.addInstruction(20000, [&]() {

@@ -12,6 +12,12 @@ protected:
   std::vector<AdvancedDataLogger *> loggers;
 
 public:
+  AdvancedDataLogger *createLogger(std::string name, std::string widget) {
+    AdvancedDataLogger *logger = new AdvancedDataLogger(name, widget);
+    loggers.push_back(logger);
+    return logger;
+  }
+
   AdvancedDataLogger *createLogger(std::string name) {
     AdvancedDataLogger *logger = new AdvancedDataLogger(name);
     loggers.push_back(logger);

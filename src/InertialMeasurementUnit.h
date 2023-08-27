@@ -9,6 +9,7 @@
 #include "Timer.h"
 
 #define M_PI 3.1415926535897932384626433832795
+#define DEG_TO_RAD (M_PI / 180.0)
 
 using namespace stateestimation;
 
@@ -26,26 +27,28 @@ class InertialMeasurementUnit
 public:
   double yaw, pitch, roll;
   
-  InertialMeasurementUnit(AdvancedDataLogger *logger)
+  InertialMeasurementUnit(MainAdvancedDataLogger *logger)
   {
     // Est.setPIGains(2.2, 2.65, 10, 1.25);
     est.setPIGains(0.5, 2.65, 5, 1.25);
 
-    logger->addDouble("Yaw", "rad", [this]() { return this->yaw; });
-    logger->addDouble("Pitch", "rad", [this]() { return this->pitch; });
-    logger->addDouble("Roll", "rad", [this]() { return this->roll; });
+    auto rawAccelerometerLogger = logger->createLogger("Raw Accelerometer", "accelerometer");
+    rawAccelerometerLogger->addDouble("X", "m/s^2", [this]() { return this->accX; });
+    rawAccelerometerLogger->addDouble("Y", "m/s^2", [this]() { return this->accY; });
+    rawAccelerometerLogger->addDouble("Z", "m/s^2", [this]() { return this->accZ; });
 
-    // logger->addVariable(3, VariableLevel::Private, accX);
-    // logger->addVariable(4, VariableLevel::Private, accY);
-    // logger->addVariable(5, VariableLevel::Private, accZ);
+    auto rawGyroscopeLogger = logger->createLogger("Raw Gyroscope", "gyro");
+    rawGyroscopeLogger->addDouble("X", "rad/s", [this]() { return this->gyrX; });
+    rawGyroscopeLogger->addDouble("Y", "rad/s", [this]() { return this->gyrY; });
+    rawGyroscopeLogger->addDouble("Z", "rad/s", [this]() { return this->gyrZ; });
 
-    // logger->addVariable(6, VariableLevel::Private, magX);
-    // logger->addVariable(7, VariableLevel::Private, magX);
-    // logger->addVariable(8, VariableLevel::Private, magX);
+    auto attitudeLogger = logger->createLogger("Est Attitude", "gyro");
+    attitudeLogger->addDouble("Roll", "deg", "roll", [this]() { return this->roll; });
+    attitudeLogger->addDouble("Pitch", "deg", "pitch", [this]() { return this->pitch; });
+    attitudeLogger->addDouble("Yaw", "deg", "yaw", [this]() { return this->yaw; });
 
-    // logger->addVariable(9, VariableLevel::Private, gyrX);
-    // logger->addVariable(10, VariableLevel::Private, gyrX);
-    // logger->addVariable(11, VariableLevel::Private, gyrX);
+    auto imuLogger = logger->createLogger("IMU");
+    imuLogger->addDouble("Roll", "rad", [this]() { return this->roll; });
   }
 
   void setup()
@@ -87,18 +90,28 @@ public:
     magY = m.magnetic.y;
     magZ = m.magnetic.z;
 
-    gyrX = g.gyro.x;
-    gyrY = g.gyro.y;
-    gyrZ = g.gyro.z;
+    gyrX = g.gyro.x * DEG_TO_RAD;
+    gyrY = g.gyro.y * DEG_TO_RAD;
+    gyrZ = g.gyro.z * DEG_TO_RAD;
 
     // est.update(timer.measure(), gyrX, gyrY, gyrZ, accX, accY, accZ, magX, magY, magZ);
-    est.update(timer.measure(), gyrX, gyrY, gyrZ, accX, accY, accZ, .0, .0, .0);
 
+    // est.update(timer.measureSeconds(), .0, .0, .0, accX, accY, accZ, .0, .0, .0);
     // yaw = est.fusedYaw();
-    // pitch = est.eulerPitch();
+    // pitch = est.fusedPitch();
     // roll = est.fusedRoll();
 
-    roll = (accX / 10.0) * M_PI;
+    // est.update(timer.measureSeconds(), gyrX, gyrY, gyrZ, accX, accY, accZ, .0, .0, .0);
+    // yaw = est.eulerYaw();
+    // pitch = est.eulerPitch();
+    // roll = est.eulerRoll();
+
+    // One-axle acc-based roll
+    // roll = (accX / 10.0) * M_PI;
+
+    // Three-axle acc-based roll and pitch
+    roll = atan2(accX, sqrt( pow(accY, 2) + pow(accZ, 2))) * 180 / M_PI;
+    pitch = atan2(accY, accZ) * 180 / M_PI;
   }
 };
 

@@ -66,6 +66,10 @@ public:
       
       group["title"] = logger->name;
 
+      if (logger->isWidget) {
+        group["widget"] = logger->widget;
+      }
+
       for (auto itVariables = variables.begin(); itVariables != variables.end(); ++itVariables)
       {
         auto& variable = *itVariables;
@@ -79,6 +83,10 @@ public:
           dataset["value"] = "%" + std::to_string(index++);
           // dataset["index"] = index++;
           // dataset['w'] = nothing
+
+          if (variable.isWidget) {
+            dataset["widget"] = variable.widget;
+          }
         }
       }
     }

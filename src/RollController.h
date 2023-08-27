@@ -7,10 +7,10 @@
 #include "Wheel.h"
 #include "Movement.h"
 
-#define MAX_INPUT M_PI
-#define ROLL_CONTROLLER_P 0.3
-#define ROLL_CONTROLLER_I 0.01
-#define ROLL_CONTROLLER_D 0.2
+#define MAX_INPUT 90
+#define ROLL_CONTROLLER_P 0.06
+#define ROLL_CONTROLLER_I 0.002
+#define ROLL_CONTROLLER_D 0.04
 #define ROLL_CONTROLLER_F 0
 
 class RollController

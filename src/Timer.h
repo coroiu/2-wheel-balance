@@ -24,6 +24,12 @@ public:
     previousTime = time;
     return interval;
   }
+
+  long measureSeconds()
+  {
+    auto interval = measure();
+    return interval * 10e6;
+  }
 };
 
 #endif
