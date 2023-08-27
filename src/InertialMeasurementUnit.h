@@ -110,8 +110,13 @@ public:
     // roll = (accX / 10.0) * M_PI;
 
     // Three-axle acc-based roll and pitch
-    roll = atan2(accX, sqrt( pow(accY, 2) + pow(accZ, 2))) * 180 / M_PI;
-    pitch = atan2(accY, accZ) * 180 / M_PI;
+    // roll = atan2(accX, sqrt( pow(accY, 2) + pow(accZ, 2))) * 180 / M_PI;
+    // pitch = atan2(accY, accZ) * 180 / M_PI;
+
+    // Three-axle acc-based roll and pitch - filtered
+    double newRoll = atan2(accX, sqrt( pow(accY, 2) + pow(accZ, 2))) * 180 / M_PI;
+    double newPitch = atan2(accY, accZ) * 180 / M_PI;
+    roll = roll + (newRoll - roll) * 0.05;
   }
 };
 

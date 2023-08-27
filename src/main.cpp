@@ -18,6 +18,7 @@
 #include "WheelSpeedController.h"
 #include "InertialMeasurementUnit.h"
 #include "GlobalTicker.h"
+#include "LED.h"
 
 void log();
 void logMeta();
@@ -60,6 +61,9 @@ void setup()
 
   imu.setup();
 
+  led.setup();
+  led.setColor(0x220000);
+
   logTicker.start();
   logMetaTicker.start();
   loopTicker.start();
@@ -67,14 +71,17 @@ void setup()
 
   rollControllSequence.addInstruction(0, []() {
     Serial.println("Roll controll sequence started.");
+    led.setColor(0x222200);
   });
   rollControllSequence.addInstruction(1000, [&]() {
     Serial.println("Controller enabled");
+    led.setColor(0x002200);
     rollController.setTargetRoll(-2.5);
     rollController.enable();
   });
-  rollControllSequence.addInstruction(20000, [&]() {
+  rollControllSequence.addInstruction(15000, [&]() {
     Serial.println("Controller disabled");
+    led.setColor(0x220000);
     rollController.disable();
   });
 
@@ -117,6 +124,12 @@ void setup()
   });
 
   commandHandler.command("enable-roll-controll", [](CommandHandler *handler) {
+    if (handler->argc < 4)
+      return;
+    double p = atof(handler->argv[1]);
+    double i = atof(handler->argv[2]);
+    double d = atof(handler->argv[3]);
+    rollController.setPID(p, i, d);
     rollControllSequence.run();
   });
 

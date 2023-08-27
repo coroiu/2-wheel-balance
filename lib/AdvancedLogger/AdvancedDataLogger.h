@@ -27,7 +27,7 @@ struct VariableInfo
   std::string name;
   std::string unit;
   std::string widget;
-  boolean isWidget;
+  bool isWidget;
   VariableType type;
   void *pointer;
   std::function<int(void)> integerFunction;
@@ -40,7 +40,7 @@ public:
   std::string name;
   std::string widget;
   std::vector<VariableInfo> variables;
-  boolean isWidget;
+  bool isWidget;
 
 public:
   AdvancedDataLogger(std::string name) : name(name), widget(""), isWidget(false) {}

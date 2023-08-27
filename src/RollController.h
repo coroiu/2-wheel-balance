@@ -8,9 +8,9 @@
 #include "Movement.h"
 
 #define MAX_INPUT 90
-#define ROLL_CONTROLLER_P 0.06
-#define ROLL_CONTROLLER_I 0.002
-#define ROLL_CONTROLLER_D 0.04
+#define ROLL_CONTROLLER_P 0.01
+#define ROLL_CONTROLLER_I 0
+#define ROLL_CONTROLLER_D 0
 #define ROLL_CONTROLLER_F 0
 
 class RollController
@@ -30,10 +30,14 @@ public:
         movement(movement)
   {
     controller.setOutputLimits(1, 1);
-    controller.setOutputFilter(.1);
-    controller.setOutputRampRate(.2);
-    controller.setSetpointRange(10);
+    // controller.setOutputFilter(.1);
+    // controller.setOutputRampRate(.2);
+    // controller.setSetpointRange(10);
     dataLogger->addDouble("Output", "%", [this]() { return this->output; });
+  }
+
+  bool isActive() {
+    return active;
   }
 
   void enable()
@@ -50,6 +54,10 @@ public:
   void setTargetRoll(double roll)
   {
     setPoint = roll;
+  }
+
+  void setPID(double P, double I, double D) {
+    controller.setPID(P, I, D);
   }
 
   void control()
