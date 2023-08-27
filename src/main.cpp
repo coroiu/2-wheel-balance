@@ -63,6 +63,8 @@ Sequence rollControllSequence;
 void setup()
 {
   Serial.begin(115200);
+  Wire.begin(-1, -1, FREQ_IMU_I2C_HZ);
+  Serial.printf("Using I2C freq: %d\n", Wire.getClock());
 
   rightWheel.setup();
   rightMotor.setup();

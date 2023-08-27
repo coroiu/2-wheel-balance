@@ -55,6 +55,8 @@ public:
 
   void setup()
   {
+    // lsm = Adafruit_LSM9DS1(&Wire);
+
     if (!lsm.begin())
     {
       Serial.println("Oops ... unable to initialize the LSM9DS1. Check your wiring!");
@@ -83,16 +85,18 @@ public:
   {
     loopTime = timer.measureSeconds();
 
-    lsm.read();
+    // lsm.read();
+    lsm.readAccel();
+    lsm.readGyro();
     lsm.getEvent(&a, &m, &g, &temp);
 
     accX = a.acceleration.x;
     accY = a.acceleration.y;
     accZ = a.acceleration.z;
 
-    magX = m.magnetic.x;
-    magY = m.magnetic.y;
-    magZ = m.magnetic.z;
+    // magX = m.magnetic.x;
+    // magY = m.magnetic.y;
+    // magZ = m.magnetic.z;
 
     gyrX = g.gyro.x * DEG_TO_RAD;
     gyrY = g.gyro.y * DEG_TO_RAD;
