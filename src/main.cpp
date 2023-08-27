@@ -37,11 +37,11 @@ SerialAdvancedDataLogger advancedDataLogger;
 InertialMeasurementUnit imu(&advancedDataLogger);
 
 Wheel leftWheel(advancedDataLogger.createLogger("Left wheel"), WHEEL_LEFT_PIN_A, WHEEL_LEFT_PIN_B, true);
-Motor leftMotor(advancedDataLogger.createLogger("Left motor"), MOTOR_LEFT_IN_1, MOTOR_LEFT_IN_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL);
+Motor leftMotor(advancedDataLogger.createLogger("Left motor"), MOTOR_LEFT_IN_1, MOTOR_LEFT_IN_2, MOTOR_LEFT_PWM_PIN, MOTOR_LEFT_PWM_CHANNEL, MOTOR_LEFT_DEADZONE);
 WheelSpeedController leftController(advancedDataLogger.createLogger("Left controller"), &leftWheel, &leftMotor);
 
 Wheel rightWheel(advancedDataLogger.createLogger("Right wheel"), WHEEL_RIGHT_PIN_A, WHEEL_RIGHT_PIN_B, false);
-Motor rightMotor(advancedDataLogger.createLogger("Right motor"), MOTOR_RIGHT_IN_1, MOTOR_RIGHT_IN_2, MOTOR_RIGHT_PWM_PIN, MOTOR_RIGHT_PWM_CHANNEL);
+Motor rightMotor(advancedDataLogger.createLogger("Right motor"), MOTOR_RIGHT_IN_1, MOTOR_RIGHT_IN_2, MOTOR_RIGHT_PWM_PIN, MOTOR_RIGHT_PWM_CHANNEL, MOTOR_RIGHT_DEADZONE);
 WheelSpeedController rightController(advancedDataLogger.createLogger("Right controller"), &leftWheel, &rightMotor);
 
 Movement movement(advancedDataLogger.createLogger("Movement"), &leftMotor, &rightMotor);

@@ -11,7 +11,9 @@
 
 class Motor
 {
+  double deadzone = .0;
   double power = .0;
+  double realPower = .0;
   Sequence testSequence;
 
   AdvancedDataLogger *logger;
@@ -21,7 +23,7 @@ class Motor
   int pwmChannel;
 
 public:
-  Motor(AdvancedDataLogger *dataLogger, int pinA, int pinB, int pwmPin, int pwmChannel) : logger(dataLogger), pinA(pinA), pinB(pinB), pwmPin(pwmPin), pwmChannel(pwmChannel)
+  Motor(AdvancedDataLogger *dataLogger, int pinA, int pinB, int pwmPin, int pwmChannel, double deadzone) : logger(dataLogger), pinA(pinA), pinB(pinB), pwmPin(pwmPin), pwmChannel(pwmChannel), deadzone(deadzone)
   {
     testSequence.addInstruction(0, []() {
       Serial.println("Test sequence started.");
@@ -71,6 +73,7 @@ public:
   {
     Serial.printf("Setting up motor %d-%d-%d\n", pinA, pinB, pwmPin);
     logger->addDouble("Power", "%", [this]() { return this->power; });
+    logger->addDouble("Real power", "%", [this]() { return this->realPower; });
     pinMode(pinA, OUTPUT);
     pinMode(pinB, OUTPUT);
     digitalWrite(pinA, LOW);
@@ -93,31 +96,36 @@ public:
 
   void setPower(double _power)
   {
-    if (_power < -1.0)
-      _power = -1.0;
-    else if (_power > 1.0)
-      _power = 1.0;
+    power = _power;
+    if (power < -1.0)
+      power = -1.0;
+    else if (power > 1.0)
+      power = 1.0;
 
-    if (almost_equal(_power, .0, MOTOR_POWER_RESOLUTION_DECIMALS))
+    if (almost_equal(power, .0, MOTOR_POWER_RESOLUTION_DECIMALS))
     {
       digitalWrite(pinA, LOW);
       digitalWrite(pinB, LOW);
+      realPower = 0;
       ledcWrite(pwmChannel, 0);
+      return;
     }
-    else if (_power < .0)
+
+    realPower = (1 - deadzone) * abs(power) + deadzone;
+    double output = realPower * MOTOR_PWM_MAX_VALUE;
+
+    if (power < .0)
     {
       digitalWrite(pinA, LOW);
       digitalWrite(pinB, HIGH);
-      ledcWrite(pwmChannel, abs(MOTOR_PWM_MAX_VALUE * _power));
+      ledcWrite(pwmChannel, output);
     }
-    else if (_power > .0)
+    else if (power > .0)
     {
       digitalWrite(pinA, HIGH);
       digitalWrite(pinB, LOW);
-      ledcWrite(pwmChannel, abs(MOTOR_PWM_MAX_VALUE * _power));
+      ledcWrite(pwmChannel, output);
     }
-
-    power = _power;
   }
 };
 
