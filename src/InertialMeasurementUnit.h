@@ -10,6 +10,7 @@
 
 #define M_PI 3.1415926535897932384626433832795
 #define DEG_TO_RAD (M_PI / 180.0)
+#define RAD_TO_DEG (180.0 / M_PI)
 
 using namespace stateestimation;
 
@@ -30,8 +31,9 @@ public:
   
   InertialMeasurementUnit(MainAdvancedDataLogger *logger)
   {
-    // Est.setPIGains(2.2, 2.65, 10, 1.25);
-    est.setPIGains(0.5, 2.65, 5, 1.25);
+    // est.setPIGains(2.2, 2.65, 10, 1.25);
+    // est.setPIGains(12, 3, 10, 1.25);
+    est.setPIGains(13, 1, 10, 1.25);
 
     auto rawAccelerometerLogger = logger->createLogger("Raw Accelerometer", "accelerometer");
     rawAccelerometerLogger->addDouble("X", "m/s^2", [this]() { return this->accX; });
@@ -109,10 +111,10 @@ public:
     // pitch = est.fusedPitch();
     // roll = est.fusedRoll();
 
-    // est.update(timer.measureSeconds(), gyrX, gyrY, gyrZ, accX, accY, accZ, .0, .0, .0);
-    // yaw = est.eulerYaw();
-    // pitch = est.eulerPitch();
-    // roll = est.eulerRoll();
+    est.update(timer.measureSeconds(), gyrX, gyrY, gyrZ, accX, accY, accZ, .0, .0, .0);
+    yaw = est.eulerYaw() * RAD_TO_DEG;
+    pitch = est.eulerRoll() * RAD_TO_DEG;
+    roll = est.eulerPitch() * -RAD_TO_DEG;
 
     // One-axle acc-based roll
     // roll = (accX / 10.0) * M_PI;
@@ -122,9 +124,9 @@ public:
     // pitch = atan2(accY, accZ) * 180 / M_PI;
 
     // Three-axle acc-based roll and pitch - filtered
-    double newRoll = atan2(accX, sqrt( pow(accY, 2) + pow(accZ, 2))) * 180 / M_PI;
-    double newPitch = atan2(accY, accZ) * 180 / M_PI;
-    roll = roll + (newRoll - roll) * 0.10;
+    // double newRoll = atan2(accX, sqrt( pow(accY, 2) + pow(accZ, 2))) * 180 / M_PI;
+    // double newPitch = atan2(accY, accZ) * 180 / M_PI;
+    // roll = roll + (newRoll - roll) * 0.10;
   }
 };
 

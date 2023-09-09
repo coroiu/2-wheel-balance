@@ -94,10 +94,10 @@ void setup()
   rollControllSequence.addInstruction(1000, [&]() {
     Serial.println("Controller enabled");
     led.setColor(0x002200);
-    rollController.setTargetRoll(-2.5);
+    rollController.setTargetRoll(-3.5);
     rollController.enable();
   });
-  rollControllSequence.addInstruction(15000, [&]() {
+  rollControllSequence.addInstruction(30000, [&]() {
     Serial.println("Controller disabled");
     led.setColor(0x220000);
     rollController.disable();

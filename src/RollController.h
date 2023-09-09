@@ -35,7 +35,7 @@ public:
     controller.setOutputLimits(1, 1);
     // controller.setOutputFilter(.1);
     // controller.setOutputRampRate(.2);
-    // controller.setSetpointRange(10);
+    // controller.setSetpointRange(0.75);
     dataLogger->addDouble("Output", "%", [this]() { return this->output; });
     // dataLogger->addDouble("Timing", "ms", [this]() { return this->loopTime*1000.0; });
   }

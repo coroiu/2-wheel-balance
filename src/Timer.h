@@ -28,7 +28,7 @@ public:
   double measureSeconds()
   {
     auto interval = measure();
-    return interval * 10e-6;
+    return interval / 1000000.0;
   }
 };
 

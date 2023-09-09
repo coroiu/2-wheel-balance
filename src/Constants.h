@@ -1,7 +1,7 @@
 #ifndef _CONSTANTS_H
 #define _CONSTANTS_H
 
-#define FREQ_CONTROL_HZ 250
+#define FREQ_CONTROL_HZ 25
 #define FREQ_LOOP_HZ 250
 #define FREQ_LOG_HZ 20
 #define FREQ_LOG_META_HZ 1
